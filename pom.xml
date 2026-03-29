@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>lk.jiat</groupId>
+    <artifactId>BookLoopAdminPanel</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <!--
+        WHY packaging=jar and not war:
+        We use embedded Tomcat (Tomcat starts inside our Main.java).
+        WAR packaging is for deploying to an external Tomcat server.
+        JAR packaging is for running with embedded Tomcat via main().
+    -->
+
+    <properties>
+        <!--
+            JAVA VERSION FIX:
+            The error "bad class file, wrong version 61.0 should be 55.0" means:
+              - version 61.0 = Java 17 class files (what Tomcat 11 was compiled with)
+              - version 55.0 = Java 11 class files (what YOUR compiler is set to)
+            Tomcat 11 requires Java 17. We fix this TWO ways:
+              1. Change Tomcat to version 10.1.x which only needs Java 11
+              2. Keep compiler at Java 11 (matches your installed JDK)
+            If you have Java 17 installed, you can change both to 17 instead.
+        -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            TOMCAT FIX: Changed to 9.0.x
+            Tomcat 10+ migrated from javax.servlet → jakarta.servlet (Jakarta EE 9).
+            Jersey 2.x depends on javax.servlet — so Tomcat 10+ breaks Jersey 2.x.
+            Tomcat 9.0.x still uses javax.servlet, perfectly matching Jersey 2.x + Java 11.
+        -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>9.0.91</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>9.0.91</version>
+        </dependency>
+
+        <!--
+            JERSEY FIX: Changed from 3.1.x to 2.41
+            Jersey 3.x uses Jakarta namespace (jakarta.ws.rs.*) and requires Jakarta EE 9+
+            Jersey 2.x uses javax namespace and works with Tomcat 10.1 + Java 11
+            WHY this matters: Jersey 3.x + Tomcat 10.1 + Java 11 causes class loading conflicts.
+        -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>2.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.41</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.41</version>
+        </dependency>
+
+        <!-- Servlet API — matched to Tomcat 9 (uses javax.servlet, not jakarta.servlet) -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+            Firebase Admin SDK — lets Java talk to your Firestore database.
+            This connects to the SAME Firebase project as your Android app.
+            Version 9.x works with Java 11.
+        -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.4.1</version>
+        </dependency>
+
+        <!--
+            JWT — for admin session token.
+            jjwt 0.11.5 is stable for Java 11. (0.13.x had breaking changes)
+        -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                Maven JAR plugin — builds a runnable JAR with all dependencies bundled.
+                This lets you run the server with: java -jar target/BookLoopAdminPanel.jar
+                The mainClass tells Java which class has the main() method to start from.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>lk.jiat.Main</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <!-- Make sure serviceAccountKey.json and webapp files are included in build -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/webapp</directory>
+                <targetPath>webapp</targetPath>
+            </resource>
+        </resources>
+    </build>
+
+</project>
