@@ -2,9 +2,523 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookLoop Admin — Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/admin.css" rel="stylesheet">
 </head>
 <body>
+
+<div class="admin-layout">
+
+    <!-- ═══════════════ SIDEBAR ═══════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">📚</div>
+            <div class="sidebar-brand-text">
+                BookLoop
+                <small>Admin Console</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Main</div>
+            <a class="sidebar-link active" onclick="showPage('dashboard', this)">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            <a class="sidebar-link" onclick="showPage('books', this)">
+                <i class="bi bi-book-half"></i> Books
+            </a>
+            <a class="sidebar-link" onclick="showPage('categories', this)">
+                <i class="bi bi-tags-fill"></i> Categories
+            </a>
+            <a class="sidebar-link" onclick="showPage('banners', this)">
+                <i class="bi bi-images"></i> Banners
+            </a>
+            <div class="sidebar-section-label" style="margin-top:8px">Commerce</div>
+            <a class="sidebar-link" onclick="showPage('orders', this)">
+                <i class="bi bi-bag-check-fill"></i> Orders
+            </a>
+            <a class="sidebar-link" onclick="showPage('users', this)">
+                <i class="bi bi-people-fill"></i> Users
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <div class="admin-avatar">👤</div>
+                <div>
+                    <div class="admin-label">Signed in as</div>
+                    <div class="admin-email" id="adminEmail">Loading...</div>
+                </div>
+            </div>
+            <button class="btn-signout" onclick="doSignOut()">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- ═══════════════ MAIN AREA ═══════════════ -->
+    <div class="main-area">
+
+        <!-- TOP HEADER -->
+        <header class="top-header">
+            <div class="header-title">
+                <span id="pageTitle">Dashboard</span>
+                <span id="pageSubtitle"></span>
+            </div>
+            <div class="header-badge">
+                <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;color:#22c55e"></i>
+                Server Online
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- ════════ DASHBOARD PAGE ════════ -->
+            <div id="page-dashboard" class="page-section active">
+
+                <!-- Stat Cards -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-brown"><i class="bi bi-book-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalBooks">
+                                <div class="spinner-border spinner-border-sm" style="color:var(--primary)"></div>
+                            </div>
+                            <div class="stat-label">Total Books</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-blue"><i class="bi bi-bag-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalOrders">
+                                <div class="spinner-border spinner-border-sm" style="color:#3b82f6"></div>
+                            </div>
+                            <div class="stat-label">Total Orders</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-purple"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalUsers">
+                                <div class="spinner-border spinner-border-sm" style="color:#6f42c1"></div>
+                            </div>
+                            <div class="stat-label">Registered Users</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-yellow"><i class="bi bi-clock-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statPendingOrders">
+                                <div class="spinner-border spinner-border-sm" style="color:#f59e0b"></div>
+                            </div>
+                            <div class="stat-label">Pending Orders</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-green"><i class="bi bi-check-circle-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statActiveBooks">—</div>
+                            <div class="stat-label">Active Books</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-red"><i class="bi bi-x-circle-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statInactiveBooks">—</div>
+                            <div class="stat-label">Inactive Books</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-teal"><i class="bi bi-tags-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalCats">—</div>
+                            <div class="stat-label">Categories</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-gray"><i class="bi bi-images"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statTotalBanners">—</div>
+                            <div class="stat-label">Active Banners</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts row -->
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header-bl">
+                                <h5><i class="bi bi-bar-chart-fill me-2" style="color:var(--primary)"></i>Orders by Status</h5>
+                            </div>
+                            <div class="card-body-bl">
+                                <div class="chart-wrapper">
+                                    <canvas id="orderStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header-bl">
+                                <h5><i class="bi bi-pie-chart-fill me-2" style="color:var(--primary)"></i>Book Availability</h5>
+                            </div>
+                            <div class="card-body-bl">
+                                <div class="chart-wrapper">
+                                    <canvas id="bookStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /dashboard -->
+
+            <!-- ════════ BOOKS PAGE ════════ -->
+            <div id="page-books" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h3>Books</h3>
+                        <p>Manage book listings — add, edit, toggle availability</p>
+                    </div>
+                    <button class="btn-primary-bl" onclick="openAddBookModal()">
+                        <i class="bi bi-plus-lg"></i> Add New Book
+                    </button>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Cover</th><th>Title / Author</th><th>Category</th>
+                                <th>Price/Week</th><th>Stock</th><th>Rating</th>
+                                <th>Status</th><th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="booksTableBody">
+                            <tr class="loading-row"><td colspan="8">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════ CATEGORIES PAGE ════════ -->
+            <div id="page-categories" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h3>Categories</h3>
+                        <p>Book genre categories shown in the Android app</p>
+                    </div>
+                    <button class="btn-primary-bl" onclick="openAddCatModal()">
+                        <i class="bi bi-plus-lg"></i> Add Category
+                    </button>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr><th>Image</th><th>Name</th><th>Category ID</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="catsTableBody">
+                            <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════ BANNERS PAGE ════════ -->
+            <div id="page-banners" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h3>Home Banners</h3>
+                        <p>Images shown in the sliding banner on the app home screen. Recommended: 1200×400px</p>
+                    </div>
+                    <button class="btn-primary-bl" onclick="openAddBannerModal()">
+                        <i class="bi bi-plus-lg"></i> Add Banner
+                    </button>
+                </div>
+                <div class="row g-3" id="bannersGrid">
+                    <div class="col-12 text-center py-5 text-muted">Loading banners...</div>
+                </div>
+            </div>
+
+            <!-- ════════ ORDERS PAGE ════════ -->
+            <div id="page-orders" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h3>Orders</h3>
+                        <p>View all rentals and update their delivery status</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Order ID</th><th>User</th><th>Date</th>
+                                <th>Total</th><th>Status</th><th>Update Status</th>
+                            </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                            <tr class="loading-row"><td colspan="6">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════ USERS PAGE ════════ -->
+            <div id="page-users" class="page-section">
+                <div class="page-header">
+                    <div>
+                        <h3>Users</h3>
+                        <p>All registered BookLoop app users</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr><th>Photo</th><th>Name</th><th>Email</th><th>User ID</th></tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                            <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /content -->
+    </div><!-- /main-area -->
+</div><!-- /admin-layout -->
+
+
+<!-- ════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════ -->
+
+<!-- Book Modal -->
+<div class="modal fade" id="bookModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-bl">
+                <h5 class="modal-title" id="bookModalLabel">Add New Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="bookFirestoreId">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Title *</label>
+                        <input type="text" id="bookTitle" class="form-control" placeholder="Book Title">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Author *</label>
+                        <input type="text" id="bookAuthor" class="form-control" placeholder="Author Name">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea id="bookDescription" class="form-control" rows="3" placeholder="Short description..."></textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Price/Week (LKR) *</label>
+                        <input type="number" id="bookPrice" class="form-control" placeholder="500">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Stock Count *</label>
+                        <input type="number" id="bookStock" class="form-control" placeholder="10">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Rating (0–5)</label>
+                        <input type="number" id="bookRating" class="form-control" placeholder="4.5" min="0" max="5" step="0.1">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Category *</label>
+                        <select id="bookCategory" class="form-select">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Book Cover Images <span class="text-muted fw-normal" style="font-size:0.8rem">(up to 5, first = main cover)</span></label>
+                        <input type="file" id="bookImageFiles" class="form-control" accept="image/*"
+                               multiple onchange="handleBookImagesSelected(event)">
+                        <div class="book-img-grid" id="bookImagesGrid"></div>
+                        <div id="bookUploadProgress" class="text-muted small mt-2" style="display:none">
+                            <div class="spinner-border spinner-border-sm me-1" style="color:var(--primary)"></div>
+                            Uploading images to Firebase Storage...
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select id="bookStatus" class="form-select">
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-primary-bl" onclick="saveBook()">
+                    <i class="bi bi-floppy"></i> Save Book
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="catModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-bl">
+                <h5 class="modal-title" id="catModalLabel">Add Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="catFirestoreId">
+                <div class="mb-3">
+                    <label class="form-label">Category Name *</label>
+                    <input type="text" id="catName" class="form-control" placeholder="e.g. Fiction">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category Image</label>
+                    <input type="file" id="catImageFile" class="form-control" accept="image/*"
+                           onchange="previewCatImage(event)">
+                    <img id="catImgPreview" src="" alt="Preview">
+                    <input type="hidden" id="catImageUrl">
+                    <div id="catUploadProgress" class="text-muted small mt-2" style="display:none">
+                        <div class="spinner-border spinner-border-sm me-1"></div> Uploading...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-primary-bl" onclick="saveCategory()">
+                    <i class="bi bi-floppy"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Banner Modal -->
+<div class="modal fade" id="bannerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-bl">
+                <h5 class="modal-title" id="bannerModalLabel">Add Banner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="bannerFirestoreId">
+                <div class="mb-3">
+                    <label class="form-label">Banner Image *</label>
+                    <input type="file" id="bannerImageFile" class="form-control" accept="image/*"
+                           onchange="previewBannerImage(event)">
+                    <img id="bannerImgPreview" src="" alt="Preview">
+                    <input type="hidden" id="bannerImageUrl">
+                    <div id="bannerUploadProgress" class="text-muted small mt-2" style="display:none">
+                        <div class="spinner-border spinner-border-sm me-1"></div> Uploading...
+                    </div>
+                    <div class="form-text">Recommended: 1200×400 px landscape</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Label <span class="text-muted fw-normal">(optional)</span></label>
+                    <input type="text" id="bannerTitle" class="form-control" placeholder="e.g. Summer Sale">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Display Order <span class="text-muted fw-normal">(1 = appears first)</span></label>
+                    <input type="number" id="bannerOrder" class="form-control" value="1" min="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn-primary-bl" onclick="saveBanner()">
+                    <i class="bi bi-floppy"></i> Save Banner
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast align-items-center text-white border-0" role="alert">
+    <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Done!</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+</div>
+
+
+<!-- ════════════════════ SCRIPTS ════════════════════ -->
+<!-- Bootstrap + Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Firebase SDKs — must load before config.js -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<!-- App scripts — ORDER MATTERS -->
+<script src="js/config.js"></script>      <!-- Firebase init, API const, fbAuth/fbStorage/fbDb -->
+<script src="js/sections.js"></script>    <!-- categories, orders, users, banners, shared helpers -->
+<script src="js/books.js"></script>       <!-- books CRUD -->
+<script src="js/charts.js"></script>      <!-- loadDashboard + charts -->
+<script src="js/auth.js"></script>        <!-- doSignOut, requireAuth -->
+
+<script>
+    // ── Page navigation ──────────────────────────────────────────────────
+    const pageTitles = {
+        dashboard:  ['Dashboard', ''],
+        books:      ['Books', 'Manage your book catalogue'],
+        categories: ['Categories', 'Book genres and types'],
+        banners:    ['Home Banners', 'App home screen slider images'],
+        orders:     ['Orders', 'Rental orders from users'],
+        users:      ['Users', 'Registered app users'],
+    };
+
+    function showPage(page, linkEl) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        if (linkEl) linkEl.classList.add('active');
+
+        const [title, sub] = pageTitles[page] || [page, ''];
+        document.getElementById('pageTitle').textContent   = title;
+        document.getElementById('pageSubtitle').textContent = sub ? ' — ' + sub : '';
+
+        const loaders = {
+            dashboard: loadDashboard, books: loadBooks,
+            categories: loadCategories, banners: loadBanners,
+            orders: loadOrders, users: loadUsers,
+        };
+        if (loaders[page]) loaders[page]();
+    }
+
+    // ── Auth guard — runs ONCE, then loads dashboard data ────────────────
+    // FIX: requireAuth now unsubscribes after first call (see auth.js).
+    //      This prevents the "keep reloading" bug where onAuthStateChanged
+    //      fired repeatedly and called loadDashboard() over and over.
+    window.addEventListener('DOMContentLoaded', () => {
+        requireAuth(user => {
+            // Show signed-in email in sidebar
+            document.getElementById('adminEmail').textContent = user.email;
+
+            // Load dashboard data — called ONCE here, never from auth again
+            loadDashboard();
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -62,13 +62,13 @@ public class Main {
         try {
             tomcat.start();
             System.out.println("=====================================");
-            System.out.println("✅ BookLoop Admin Panel is running!");
+            System.out.println("BookLoop Admin Panel is running!");
             System.out.println("Admin Dashboard: http://localhost:" + SERVER_PORT);
             System.out.println("API Base URL:    http://localhost:" + SERVER_PORT + API_PATH);
             System.out.println("=====================================");
             tomcat.getServer().await();
         } catch (LifecycleException e) {
-            System.err.println("❌ Server failed to start: " + e.getMessage());
+            System.err.println(" Server failed to start: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

@@ -2,9 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookLoop Admin — Sign In</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/admin.css" rel="stylesheet">
 </head>
 <body>
+
+<div class="login-page">
+
+    <!-- Decorative background circles are in CSS ::before / ::after -->
+
+    <div class="login-card">
+
+        <!-- Logo -->
+        <div class="login-logo">📚</div>
+
+        <div class="login-title">BookLoop Admin</div>
+        <div class="login-subtitle">Sign in to manage your platform</div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="loginEmail" class="form-control"
+                   placeholder="admin@bookloop.lk" autocomplete="email">
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <input type="password" id="loginPassword" class="form-control"
+                       placeholder="Enter password" autocomplete="current-password">
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                    <i class="bi bi-eye" id="pwToggleIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sign In Button -->
+        <button class="btn-login" id="loginBtn" onclick="doLogin()">
+            <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </button>
+
+        <!-- Error message box -->
+        <div class="login-error" id="loginError"></div>
+
+        <hr style="margin: 28px 0 16px; border-color: #f0f0f0">
+
+        <p class="text-center mb-0" style="font-size:0.78rem; color:#aaa">
+            BookLoop Admin Panel &nbsp;·&nbsp; v2.0
+        </p>
+    </div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
