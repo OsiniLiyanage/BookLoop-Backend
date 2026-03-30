@@ -162,7 +162,7 @@ public class BookController {
         }
     }
 
-    // OPTIONS handlers for CORS preflight
+
     @OPTIONS public Response options() { return Response.ok().build(); }
     @OPTIONS @Path("/{id}") public Response optionsId() { return Response.ok().build(); }
     @OPTIONS @Path("/{id}/status") public Response optionsStatus() { return Response.ok().build(); }
