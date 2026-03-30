@@ -241,7 +241,7 @@ async function deleteBanner(docId, title) {
 
 async function loadOrders() {
     const tbody = document.getElementById('ordersTableBody');
-    tbody.innerHTML = `<tr class="loading-row"><td colspan="6">
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="7">
         <div class="spinner-border spinner-border-sm me-2" style="color:var(--primary)"></div>Loading orders...
     </td></tr>`;
 
@@ -250,7 +250,7 @@ async function loadOrders() {
         const orders = await res.json();
 
         if (!orders.length) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted">
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
                 <i class="bi bi-bag" style="font-size:2rem;display:block;margin-bottom:8px"></i>
                 No orders yet.
             </td></tr>`;
@@ -259,31 +259,61 @@ async function loadOrders() {
 
         const statusClass = {
             CONFIRMED: 'badge-confirmed', PROCESSING: 'badge-processing',
-            DELIVERED: 'badge-delivered', RETURNED:   'badge-returned'
+            DELIVERED: 'badge-delivered', RETURNED:   'badge-returned',
+            PAID:      'badge-confirmed'
         };
 
         tbody.innerHTML = orders.map(o => {
             let dateStr = '—';
             const secs = o.orderDate?._seconds || o.orderDate?.seconds;
-            if (secs) dateStr = new Date(secs * 1000).toLocaleDateString('en-GB');
+            if (secs) dateStr = new Date(secs * 1000).toLocaleDateString('en-GB', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
 
             const cls = statusClass[o.status] || 'badge-returned';
+            const ship = o.shippingAddress || {};
+
+            // Build items list
+            const items = (o.orderItems || []).map(item => {
+                const attrs = (item.attributes || []).map(a => `${a.name}: ${a.value}`).join(', ');
+                return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    ${item.productImage ? `<img src="${item.productImage}" width="36" height="36" style="border-radius:6px;object-fit:cover;border:1px solid #e2e8f0">` : ''}
+                    <div>
+                        <div style="font-size:0.8rem;font-weight:600">${item.productTitle||'—'}</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted)">
+                            Qty: ${item.quantity||1} &nbsp;|&nbsp; ${item.rentalWeeks||1} week(s) &nbsp;|&nbsp; LKR ${(item.unitPrice||0).toFixed(2)}/wk
+                            ${attrs ? `<br><span style="color:#6b7280">${attrs}</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
 
             return `<tr>
-                <td><code style="font-size:0.78rem">${(o.orderId||o.firestoreId||'').substring(0,14)}…</code></td>
-                <td><span style="font-size:0.8rem;color:var(--text-muted)">${o.userId?o.userId.substring(0,10)+'…':'—'}</span></td>
-                <td>${dateStr}</td>
-                <td><strong>LKR ${(o.totalAmount||0).toFixed(2)}</strong></td>
+                <td>
+                    <code style="font-size:0.72rem;background:#f1f5f9;padding:2px 6px;border-radius:5px;display:block;margin-bottom:4px">${o.orderId||o.firestoreId||'—'}</code>
+                    <div style="font-size:0.72rem;color:var(--text-muted)">${dateStr}</div>
+                </td>
+                <td>
+                    <div style="font-weight:600;font-size:0.85rem">${ship.name||'—'}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)">${ship.email||'—'}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)">${ship.contact||'—'}</div>
+                </td>
+                <td style="max-width:180px">
+                    <div style="font-size:0.78rem">${ship.address1||'—'}${ship.address2 ? ', '+ship.address2 : ''}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)">${ship.city||''} ${ship.postcode||''}</div>
+                </td>
+                <td style="min-width:200px">${items||'<span style="color:var(--text-muted);font-size:0.8rem">No items</span>'}</td>
+                <td><strong style="color:var(--primary)">LKR ${(o.totalAmount||0).toFixed(2)}</strong></td>
                 <td><span class="badge-pill ${cls}">${o.status||'UNKNOWN'}</span></td>
                 <td>
-                    <select class="form-select form-select-sm d-inline-block me-1" style="width:auto" id="st_${o.firestoreId}">
+                    <select class="form-select form-select-sm mb-1" id="st_${o.firestoreId}" style="font-size:0.78rem">
                         <option value="CONFIRMED">CONFIRMED</option>
                         <option value="PROCESSING">PROCESSING</option>
                         <option value="DELIVERED">DELIVERED</option>
                         <option value="RETURNED">RETURNED</option>
                     </select>
-                    <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${o.firestoreId}')"
-                            style="background:var(--primary);border:none">Update</button>
+                    <button class="btn btn-sm btn-primary w-100" onclick="updateOrderStatus('${o.firestoreId}')"
+                            style="background:var(--primary);border:none;font-size:0.78rem">Update</button>
                 </td>
             </tr>`;
         }).join('');
@@ -294,7 +324,7 @@ async function loadOrders() {
         });
 
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">${e.message}</td></tr>`;
     }
 }
 
@@ -317,7 +347,7 @@ async function updateOrderStatus(fid) {
 
 async function loadUsers() {
     const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = `<tr class="loading-row"><td colspan="4">
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="2">
         <div class="spinner-border spinner-border-sm me-2" style="color:var(--primary)"></div>Loading...
     </td></tr>`;
 
@@ -326,7 +356,7 @@ async function loadUsers() {
         const users = await res.json();
 
         if (!users.length) {
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted">
+            tbody.innerHTML = `<tr><td colspan="2" class="text-center py-5 text-muted">
                 <i class="bi bi-people" style="font-size:2rem;display:block;margin-bottom:8px"></i>
                 No registered users yet.
             </td></tr>`;
@@ -335,18 +365,13 @@ async function loadUsers() {
 
         tbody.innerHTML = users.map(u => `
             <tr>
-                <td>${u.profilePicUrl
-                ? `<img src="${u.profilePicUrl}" width="38" height="38" style="border-radius:50%;object-fit:cover;border:2px solid #eee">`
-                : '<div style="width:38px;height:38px;background:#f1f5f9;border-radius:50%;display:flex;align-items:center;justify-content:center">👤</div>'
-            }</td>
                 <td><strong>${u.name||'—'}</strong></td>
                 <td>${u.email||'—'}</td>
-                <td><span style="font-size:0.75rem;color:var(--text-muted)">${u.uid||u.firestoreId||'—'}</span></td>
             </tr>`
         ).join('');
 
     } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-4">${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="2" class="text-center text-danger py-4">${e.message}</td></tr>`;
     }
 }
 

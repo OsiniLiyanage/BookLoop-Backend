@@ -15,10 +15,10 @@
     <!-- ═══════════════ SIDEBAR ═══════════════ -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <div class="sidebar-brand-icon">📚</div>
+            <img src="images/logo.png" width="38" height="38" style="border-radius:8px;object-fit:contain">
             <div class="sidebar-brand-text">
                 BookLoop
-                <small>Admin Console</small>
+                <small>Admin Dashboard</small>
             </div>
         </div>
 
@@ -261,12 +261,12 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th>Order ID</th><th>User</th><th>Date</th>
-                                <th>Total</th><th>Status</th><th>Update Status</th>
+                                <th>Order ID / Date</th><th>Customer</th><th>Shipping Address</th>
+                                <th>Items</th><th>Total</th><th>Status</th><th>Update Status</th>
                             </tr>
                             </thead>
                             <tbody id="ordersTableBody">
-                            <tr class="loading-row"><td colspan="6">Loading...</td></tr>
+                            <tr class="loading-row"><td colspan="7">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -285,10 +285,10 @@
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                            <tr><th>Photo</th><th>Name</th><th>Email</th><th>User ID</th></tr>
+                            <tr><th>Name</th><th>Email</th></tr>
                             </thead>
                             <tbody id="usersTableBody">
-                            <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                            <tr class="loading-row"><td colspan="2">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
