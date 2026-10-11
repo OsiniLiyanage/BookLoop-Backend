@@ -728,14 +728,334 @@ body {
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+/* ── EXTRA: INCOME SECTION + MOBILE MENU ───────────── */
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin: 4px 0 14px;
+}
+
+.section-title i { color: var(--primary); }
+
+.stat-value-sm { font-size: 1.45rem; }
+
+.card-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.top-book-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* title column takes the leftover space and shows "..." when too long */
+.top-book-cell { width: 100%; max-width: 0; }
+
+.top-book-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Sidebar always fits the screen height (menu scrolls if the screen is short) */
+.sidebar { height: 100vh; height: 100dvh; }
+
+/* Stops wide tables from pushing the layout sideways */
+.main-area { min-width: 0; }
+.table-responsive { -webkit-overflow-scrolling: touch; }
+
+/* Hamburger button (hidden on large screens) */
+.menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--primary);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.menu-toggle:hover { background: var(--primary-faint); }
+
+/* Close (X) button inside the sidebar (shown on small screens only) */
+.sidebar-close {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.07);
+    border: none;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.75);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.sidebar-close:hover { background: rgba(255,255,255,0.14); color: white; }
+
+/* Dark layer behind the open sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: rgba(15, 10, 8, 0.55);
+    z-index: 190;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+}
+
+.sidebar-overlay.show { opacity: 1; visibility: visible; }
+
+.header-title {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* ── RESPONSIVE ──────────────────────────────────── */
+
+/* Laptops: slightly slimmer sidebar = more room for content */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    :root { --sidebar-width: 220px; }
+}
 
 @media (max-width: 1200px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 768px) {
+/* Tablets and phones: sidebar becomes a slide-in menu opened by the hamburger */
+@media (max-width: 991.98px) {
     .sidebar { transform: translateX(-100%); }
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 0 0 40px rgba(0,0,0,0.45);
+    }
     .main-area { margin-left: 0; }
+    .menu-toggle { display: inline-flex; }
+    .sidebar-close { display: inline-flex; }
+    .top-header { padding: 0 16px; }
+    .content { padding: 20px 16px; }
+    body.sidebar-open { overflow: hidden; }
+}
+
+@media (max-width: 767.98px) {
     .stat-grid { grid-template-columns: 1fr 1fr; }
+    .page-header { flex-wrap: wrap; }
+    .chart-wrapper { height: 250px; }
+    #toast { left: 12px; right: 12px; bottom: 16px; min-width: 0; }
+    .modal-body { padding: 18px; }
+    .modal-footer { padding: 12px 18px; }
+}
+
+@media (max-width: 575.98px) {
+    #pageSubtitle { display: none; }
+    .header-badge { padding: 5px 9px; }
+    .header-badge-text { display: none; }
+    .header-badge i { margin-right: 0 !important; }
+    .content { padding: 16px 12px; }
+    .stat-grid { gap: 12px; margin-bottom: 18px; }
+    .stat-card { padding: 14px; gap: 10px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px; }
+    .stat-value { font-size: 1.45rem; }
+    .stat-value-sm { font-size: 0.95rem; }
+    .stat-label { font-size: 0.72rem; }
+    .page-header { flex-direction: column; align-items: stretch; }
+    .page-header .btn-primary-bl { justify-content: center; width: 100%; }
+    .card-header-bl { padding: 14px 16px; }
+    .card-body-bl { padding: 16px; }
+    .chart-wrapper { height: 230px; }
+    .banner-card img { height: 140px; }
+    .table thead th, .table tbody td { padding: 10px 12px; }
+    .top-books-table th, .top-books-table td { padding: 10px 8px; }
+    .login-card { padding: 34px 22px; }
+}
+
+@media (max-width: 359.98px) {
+    .stat-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   DROPDOWN FIX: the old .form-select rule removed the space reserved for the
+   arrow, so long text (PROCESSING, CONFIRMED) ran into it. Space is restored.
+   ============================================================ */
+.form-select { padding-right: 2.25rem; }
+.form-select.form-select-sm { padding: 5px 2rem 5px 10px; }
+
+/* "Update Status" column on the Orders page: wide enough for the dropdown */
+.status-update-cell { min-width: 185px; width: 185px; }
+.status-update-cell .form-select { width: 100%; }
+
+/* ============================================================
+   ORDER HISTORY PAGE
+   ============================================================ */
+.btn-outline-bl {
+    background: white;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-outline-bl:hover { background: var(--primary-faint); }
+
+.oh-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.oh-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 16px 18px;
+    margin-bottom: 18px;
+}
+.oh-filter { flex: 0 1 160px; min-width: 130px; }
+.oh-filter-search { flex: 1 1 240px; }
+.oh-filter-clear { flex: 0 0 auto; }
+
+.oh-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.oh-sum-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 14px 18px;
+}
+.oh-sum-value { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+.oh-sum-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+/* Header that exists only on paper */
+.oh-print-header { display: none; margin-bottom: 14px; }
+.oh-print-header h2 { margin: 0 0 4px; font-size: 1.4rem; }
+.oh-print-header div { font-size: 0.8rem; color: #555; }
+
+@media (max-width: 991.98px) {
+    .oh-summary { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 575.98px) {
+    .oh-summary { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .oh-filter, .oh-filter-search { flex: 1 1 100%; }
+    .oh-actions { width: 100%; }
+    .oh-actions button { flex: 1; justify-content: center; }
+}
+
+/* ============================================================
+   PRINT: only while the History "Print" button is used
+   (body gets the class "printing-history"), so printing other pages is unchanged.
+   ============================================================ */
+@media print {
+    body.printing-history .sidebar,
+    body.printing-history .top-header,
+    body.printing-history .sidebar-overlay,
+    body.printing-history .no-print,
+    body.printing-history #toast { display: none !important; }
+
+    body.printing-history .main-area { margin-left: 0 !important; }
+    body.printing-history .content   { padding: 0 !important; }
+    body.printing-history .page-section { display: none !important; }
+    body.printing-history #page-history { display: block !important; }
+
+    body.printing-history .oh-print-header { display: block !important; }
+    body.printing-history .table-card { box-shadow: none !important; border: none !important; }
+    body.printing-history .table-responsive { overflow: visible !important; }
+    body.printing-history .oh-sum-card { box-shadow: none !important; border: 1px solid #bbb; }
+    body.printing-history thead { display: table-header-group; }
+    body.printing-history tr { page-break-inside: avoid; }
+    body.printing-history .badge-pill {
+        background: #fff !important; color: #000 !important; border: 1px solid #888;
+    }
+    body.printing-history code { background: none !important; }
+}
+
+
+/* ============================================================
+   USERS PAGE
+   ============================================================ */
+.user-cell { display: flex; align-items: center; gap: 12px; }
+
+.user-avatar-sm, .user-avatar-lg {
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.user-avatar-sm { width: 38px; height: 38px; font-size: 0.95rem; }
+.user-avatar-lg { width: 64px; height: 64px; font-size: 1.5rem; }
+.user-avatar-sm img, .user-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+
+.user-profile-head { display: flex; align-items: center; gap: 16px; }
+
+#userModal .oh-summary { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 575.98px) {
+    #userModal .oh-summary { grid-template-columns: 1fr 1fr; }
+}
+
+/* PRINT (Users): same idea as Order History, only while "Print" is used */
+@media print {
+    body.printing-users .sidebar,
+    body.printing-users .top-header,
+    body.printing-users .sidebar-overlay,
+    body.printing-users .no-print,
+    body.printing-users #toast { display: none !important; }
+
+    body.printing-users .main-area { margin-left: 0 !important; }
+    body.printing-users .content   { padding: 0 !important; }
+    body.printing-users .page-section { display: none !important; }
+    body.printing-users #page-users { display: block !important; }
+
+    body.printing-users .oh-print-header { display: block !important; }
+    body.printing-users .table-card { box-shadow: none !important; border: none !important; }
+    body.printing-users .table-responsive { overflow: visible !important; }
+    body.printing-users .oh-sum-card { box-shadow: none !important; border: 1px solid #bbb; }
+    body.printing-users thead { display: table-header-group; }
+    body.printing-users tr { page-break-inside: avoid; }
+    body.printing-users .badge-pill {
+        background: #fff !important; color: #000 !important; border: 1px solid #888;
+    }
+    body.printing-users .user-avatar-sm { border: 1px solid #bbb; background: #fff !important; }
 }

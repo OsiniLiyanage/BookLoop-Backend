@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookLoop Admin — Dashboard</title>
+    <title>BookLoop Admin - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="css/admin.css" rel="stylesheet">
@@ -20,6 +20,9 @@
                 BookLoop
                 <small>Admin Dashboard</small>
             </div>
+            <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -40,6 +43,9 @@
             <a class="sidebar-link" onclick="showPage('orders', this)">
                 <i class="bi bi-bag-check-fill"></i> Orders
             </a>
+            <a class="sidebar-link" onclick="showPage('history', this)">
+                <i class="bi bi-clock-history"></i> Order History
+            </a>
             <a class="sidebar-link" onclick="showPage('users', this)">
                 <i class="bi bi-people-fill"></i> Users
             </a>
@@ -59,18 +65,24 @@
         </div>
     </aside>
 
+    <!-- Dark overlay behind the sidebar on small screens (tap to close) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
     <!-- ═══════════════ MAIN AREA ═══════════════ -->
     <div class="main-area">
 
         <!-- TOP HEADER -->
         <header class="top-header">
+            <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Open menu">
+                <i class="bi bi-list"></i>
+            </button>
             <div class="header-title">
                 <span id="pageTitle">Dashboard</span>
                 <span id="pageSubtitle"></span>
             </div>
             <div class="header-badge">
                 <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;color:#22c55e"></i>
-                Server Online
+                <span class="header-badge-text">Server Online</span>
             </div>
         </header>
 
@@ -121,29 +133,70 @@
                     <div class="stat-card">
                         <div class="stat-icon stat-green"><i class="bi bi-check-circle-fill"></i></div>
                         <div class="stat-info">
-                            <div class="stat-value" id="statActiveBooks">—</div>
+                            <div class="stat-value" id="statActiveBooks">-</div>
                             <div class="stat-label">Active Books</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon stat-red"><i class="bi bi-x-circle-fill"></i></div>
                         <div class="stat-info">
-                            <div class="stat-value" id="statInactiveBooks">—</div>
+                            <div class="stat-value" id="statInactiveBooks">-</div>
                             <div class="stat-label">Inactive Books</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon stat-teal"><i class="bi bi-tags-fill"></i></div>
                         <div class="stat-info">
-                            <div class="stat-value" id="statTotalCats">—</div>
+                            <div class="stat-value" id="statTotalCats">-</div>
                             <div class="stat-label">Categories</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon stat-gray"><i class="bi bi-images"></i></div>
                         <div class="stat-info">
-                            <div class="stat-value" id="statTotalBanners">—</div>
+                            <div class="stat-value" id="statTotalBanners">-</div>
                             <div class="stat-label">Active Banners</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Seller income (calculated from orders) ── -->
+                <div class="section-title"><i class="bi bi-cash-coin"></i> Seller Income</div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-green"><i class="bi bi-cash-stack"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value stat-value-sm" id="statIncomeTotal">
+                                <div class="spinner-border spinner-border-sm" style="color:#1a7a35"></div>
+                            </div>
+                            <div class="stat-label">Total Income</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-brown"><i class="bi bi-calendar-check-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value stat-value-sm" id="statIncomeMonth">
+                                <div class="spinner-border spinner-border-sm" style="color:var(--primary)"></div>
+                            </div>
+                            <div class="stat-label">This Month</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-purple"><i class="bi bi-receipt"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value stat-value-sm" id="statIncomeAvg">
+                                <div class="spinner-border spinner-border-sm" style="color:#6f42c1"></div>
+                            </div>
+                            <div class="stat-label">Average Order</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-teal"><i class="bi bi-journal-bookmark-fill"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="statBooksRented">
+                                <div class="spinner-border spinner-border-sm" style="color:#146c56"></div>
+                            </div>
+                            <div class="stat-label">Books Rented</div>
                         </div>
                     </div>
                 </div>
@@ -176,6 +229,43 @@
                     </div>
                 </div>
 
+                <!-- ── Income chart + top earning books ── -->
+                <div class="mt-4">
+                    <div class="row g-4">
+                        <div class="col-xl-7">
+                            <div class="card h-100">
+                                <div class="card-header-bl">
+                                    <h5><i class="bi bi-graph-up-arrow me-2" style="color:var(--primary)"></i>Monthly Income</h5>
+                                    <span class="card-note">Last 6 months</span>
+                                </div>
+                                <div class="card-body-bl">
+                                    <div class="chart-wrapper">
+                                        <canvas id="incomeChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-5">
+                            <div class="card h-100">
+                                <div class="card-header-bl">
+                                    <h5><i class="bi bi-trophy-fill me-2" style="color:var(--primary)"></i>Top Earning Books</h5>
+                                    <span class="card-note">By rental income</span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table top-books-table">
+                                        <thead>
+                                        <tr><th>#</th><th>Book</th><th class="text-end">Rented</th><th class="text-end text-nowrap">Income</th></tr>
+                                        </thead>
+                                        <tbody id="topBooksBody">
+                                        <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div><!-- /dashboard -->
 
             <!-- ════════ BOOKS PAGE ════════ -->
@@ -183,7 +273,7 @@
                 <div class="page-header">
                     <div>
                         <h3>Books</h3>
-                        <p>Manage book listings — add, edit, toggle availability</p>
+                        <p>Manage book listings - add, edit, toggle availability</p>
                     </div>
                     <button class="btn-primary-bl" onclick="openAddBookModal()">
                         <i class="bi bi-plus-lg"></i> Add New Book
@@ -273,22 +363,163 @@
                 </div>
             </div>
 
-            <!-- ════════ USERS PAGE ════════ -->
-            <div id="page-users" class="page-section">
-                <div class="page-header">
+            <!--  ORDER HISTORY PAGE  -->
+            <div id="page-history" class="page-section">
+                <div class="page-header no-print">
                     <div>
-                        <h3>Users</h3>
-                        <p>All registered BookLoop app users</p>
+                        <h3>Order History</h3>
+                        <p>Every rental order - search, filter, print or export</p>
+                    </div>
+                    <div class="oh-actions">
+                        <button class="btn-outline-bl" onclick="exportHistoryCsv()">
+                            <i class="bi bi-download"></i> Export CSV
+                        </button>
+                        <button class="btn-primary-bl" onclick="printOrderHistory()">
+                            <i class="bi bi-printer-fill"></i> Print
+                        </button>
                     </div>
                 </div>
+
+                <!-- Shown ONLY on the printed report -->
+                <div class="oh-print-header">
+                    <h2>BookLoop - Order History Report</h2>
+                    <div id="ohPrintMeta"></div>
+                </div>
+
+                <!-- Filters -->
+                <div class="oh-filters no-print">
+                    <div class="oh-filter oh-filter-search">
+                        <label class="form-label">Search</label>
+                        <input type="text" id="historySearch" class="form-control"
+                               placeholder="Order ID, customer, book..." oninput="applyHistoryFilters()">
+                    </div>
+                    <div class="oh-filter">
+                        <label class="form-label">Status</label>
+                        <select id="historyStatus" class="form-select" onchange="applyHistoryFilters()">
+                            <option value="">All statuses</option>
+                            <option value="PAID">PAID</option>
+                            <option value="CONFIRMED">CONFIRMED</option>
+                            <option value="PROCESSING">PROCESSING</option>
+                            <option value="DELIVERED">DELIVERED</option>
+                            <option value="RETURNED">RETURNED</option>
+                        </select>
+                    </div>
+                    <div class="oh-filter">
+                        <label class="form-label">From</label>
+                        <input type="date" id="historyFrom" class="form-control" onchange="applyHistoryFilters()">
+                    </div>
+                    <div class="oh-filter">
+                        <label class="form-label">To</label>
+                        <input type="date" id="historyTo" class="form-control" onchange="applyHistoryFilters()">
+                    </div>
+                    <div class="oh-filter oh-filter-clear">
+                        <button class="btn-outline-bl" onclick="clearHistoryFilters()">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary of the orders currently shown -->
+                <div class="oh-summary">
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="ohCount">0</div><div class="oh-sum-label">Orders</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="ohTotal">LKR 0.00</div><div class="oh-sum-label">Total value</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="ohBooks">0</div><div class="oh-sum-label">Books rented</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="ohFinished">0</div><div class="oh-sum-label">Delivered / returned</div></div>
+                </div>
+
                 <div class="table-card">
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
-                            <tr><th>Name</th><th>Email</th></tr>
+                            <tr>
+                                <th>Date</th><th>Order ID</th><th>Customer</th>
+                                <th>Items</th><th>Total</th><th>Status</th><th class="no-print">Invoice</th>
+                            </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                            <tr class="loading-row"><td colspan="7">Open this tab to load history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!--  USERS PAGE  -->
+            <div id="page-users" class="page-section">
+                <div class="page-header no-print">
+                    <div>
+                        <h3>Users</h3>
+                        <p>All registered BookLoop app users with their rental activity</p>
+                    </div>
+                    <div class="oh-actions">
+                        <button class="btn-outline-bl" onclick="exportUsersCsv()">
+                            <i class="bi bi-download"></i> Export CSV
+                        </button>
+                        <button class="btn-primary-bl" onclick="printUsersReport()">
+                            <i class="bi bi-printer-fill"></i> Print
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Shown ONLY on the printed report -->
+                <div class="oh-print-header">
+                    <h2>BookLoop - Users Report</h2>
+                    <div id="uPrintMeta"></div>
+                </div>
+
+                <!-- Filters -->
+                <div class="oh-filters no-print">
+                    <div class="oh-filter oh-filter-search">
+                        <label class="form-label">Search</label>
+                        <input type="text" id="userSearch" class="form-control"
+                               placeholder="Name, email, phone, city..." oninput="applyUserFilters()">
+                    </div>
+                    <div class="oh-filter">
+                        <label class="form-label">Show</label>
+                        <select id="userFilter" class="form-select" onchange="applyUserFilters()">
+                            <option value="">All users</option>
+                            <option value="customers">With orders</option>
+                            <option value="nocustomers">No orders yet</option>
+                            <option value="active">With active orders</option>
+                        </select>
+                    </div>
+                    <div class="oh-filter">
+                        <label class="form-label">Sort by</label>
+                        <select id="userSort" class="form-select" onchange="applyUserFilters()">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="orders">Most orders</option>
+                            <option value="spent">Highest spending</option>
+                            <option value="recent">Latest order</option>
+                        </select>
+                    </div>
+                    <div class="oh-filter oh-filter-clear">
+                        <button class="btn-outline-bl" onclick="clearUserFilters()">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary of the users currently shown -->
+                <div class="oh-summary">
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="uCount">0</div><div class="oh-sum-label">Users</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="uCustomers">0</div><div class="oh-sum-label">With orders</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="uActive">0</div><div class="oh-sum-label">Active orders</div></div>
+                    <div class="oh-sum-card"><div class="oh-sum-value" id="uRevenue">LKR 0.00</div><div class="oh-sum-label">Total order value</div></div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>User</th><th>Phone / City</th>
+                                <th class="text-center">Orders</th><th class="text-center">Active</th>
+                                <th class="text-center">Books</th><th>Total spent</th><th>Last order</th>
+                                <th class="no-print">Details</th>
+                            </tr>
                             </thead>
                             <tbody id="usersTableBody">
-                            <tr class="loading-row"><td colspan="2">Loading...</td></tr>
+                            <tr class="loading-row"><td colspan="8">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -303,6 +534,25 @@
 <!-- ════════════════════════════════════════════
      MODALS
 ════════════════════════════════════════════ -->
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header modal-header-bl">
+                <h5 class="modal-title" id="userModalTitle">User details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="userModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-bl" id="userModalPrintBtn">
+                    <i class="bi bi-printer"></i> Print report
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Book Modal -->
 <div class="modal fade" id="bookModal" tabindex="-1">
@@ -484,6 +734,7 @@
         categories: ['Categories', 'Book genres and types'],
         banners:    ['Home Banners', 'App home screen slider images'],
         orders:     ['Orders', 'Rental orders from users'],
+        history:    ['Order History', 'All orders - search, print and export'],
         users:      ['Users', 'Registered app users'],
     };
 
@@ -495,15 +746,34 @@
 
         const [title, sub] = pageTitles[page] || [page, ''];
         document.getElementById('pageTitle').textContent   = title;
-        document.getElementById('pageSubtitle').textContent = sub ? ' — ' + sub : '';
+        document.getElementById('pageSubtitle').textContent = sub ? ' - ' + sub : '';
 
         const loaders = {
             dashboard: loadDashboard, books: loadBooks,
             categories: loadCategories, banners: loadBanners,
-            orders: loadOrders, users: loadUsers,
+            orders: loadOrders, history: loadOrderHistory, users: loadUsers,
         };
         if (loaders[page]) loaders[page]();
+        closeSidebar();   // on small screens: hide the menu after choosing a page
     }
+
+    // ── Mobile menu (hamburger) ──────────────────────────────────────────
+    function openSidebar() {
+        document.querySelector('.sidebar').classList.add('open');
+        document.getElementById('sidebarOverlay').classList.add('show');
+        document.body.classList.add('sidebar-open');
+    }
+    function closeSidebar() {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+        document.body.classList.remove('sidebar-open');
+    }
+    function toggleSidebar() {
+        if (document.querySelector('.sidebar').classList.contains('open')) closeSidebar();
+        else openSidebar();
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+    window.addEventListener('resize', () => { if (window.innerWidth >= 992) closeSidebar(); });
 
     // ── Auth guard — runs ONCE, then loads dashboard data ────────────────
     // FIX: requireAuth now unsubscribes after first call (see auth.js).

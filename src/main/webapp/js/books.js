@@ -32,7 +32,7 @@ async function loadBooks() {
             const status = book.status
                 ? '<span class="badge-pill badge-available">Available</span>'
                 : '<span class="badge-pill badge-unavailable">Unavailable</span>';
-            const rating = book.rating ? `⭐ ${parseFloat(book.rating).toFixed(1)}` : '—';
+            const rating = book.rating ? `⭐ ${parseFloat(book.rating).toFixed(1)}` : '-';
 
             return `<tr>
                 <td>${img
@@ -40,12 +40,12 @@ async function loadBooks() {
                 : '<div style="width:40px;height:58px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem">📚</div>'
             }</td>
                 <td>
-                    <div style="font-weight:600">${book.title || '—'}</div>
+                    <div style="font-weight:600">${book.title || '-'}</div>
                     <div style="font-size:0.78rem;color:var(--text-muted)">${book.author || ''}</div>
                 </td>
-                <td>${book.categoryId || '—'}</td>
+                <td>${book.categoryId || '-'}</td>
                 <td><strong>LKR ${book.price || 0}</strong><div style="font-size:0.72rem;color:var(--text-muted)">/week</div></td>
-                <td>${book.stockCount ?? '—'}</td>
+                <td>${book.stockCount ?? '-'}</td>
                 <td>${rating}</td>
                 <td>${status}</td>
                 <td>
@@ -139,7 +139,7 @@ function handleBookImagesSelected(event) {
     const remaining = 5 - existingImageUrls.length - bookImageQueue.length;
     if (remaining <= 0) { showToast('Max 5 images. Remove one first.', false); event.target.value=''; return; }
     bookImageQueue.push(...files.slice(0, remaining));
-    if (files.length > remaining) showToast(`Only ${remaining} slot(s) left — added first ${remaining}.`, false);
+    if (files.length > remaining) showToast(`Only ${remaining} slot(s) left - added first ${remaining}.`, false);
     event.target.value = '';
     renderBookImageGrid();
 }
