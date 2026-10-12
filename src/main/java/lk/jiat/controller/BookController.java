@@ -2,6 +2,9 @@ package lk.jiat.controller;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
 import lk.jiat.util.FirebaseUtil;
 
 // IMPORTANT: Use javax.ws.rs.* (Jersey 2.x), NOT jakarta.ws.rs.* (Jersey 3.x)
@@ -22,7 +25,7 @@ import java.util.concurrent.ExecutionException;
  *
  * Endpoints:
  *   GET    /api/v1/books               → get all books
- *   POST   /api/v1/books               → add a new book
+ *   POST   /api/v1/books               → add a new book (+ sends a "new book" push to all phones)
  *   PUT    /api/v1/books/{id}          → edit a book
  *   DELETE /api/v1/books/{id}          → delete a book
  *   PATCH  /api/v1/books/{id}/status   → toggle available/unavailable
@@ -73,10 +76,19 @@ public class BookController {
 
             DocumentReference docRef = db.collection("products").add(bookData).get();
 
+            // PUSH: tell every phone subscribed to the "new_books" topic.
+            // Only for books that are available. Never throws: a push problem must not
+            // break adding the book.
+            String pushResult = "skipped (book is not available)";
+            if (!Boolean.FALSE.equals(bookData.get("status"))) {
+                pushResult = sendNewBookPush(db, productId, bookData);
+            }
+
             Map<String, Object> result = new HashMap<>();
             result.put("message", "Book added successfully");
             result.put("productId", productId);
             result.put("firestoreId", docRef.getId());
+            result.put("push", pushResult);
             return Response.status(Response.Status.CREATED).entity(result).build();
 
         } catch (InterruptedException | ExecutionException e) {
@@ -162,6 +174,51 @@ public class BookController {
         }
     }
 
+
+    // Sends the "new book added" push to the topic "new_books".
+    // The phone (BookLoopMessagingService) builds the notification from these data fields
+    // and opens this book's details page when it is tapped (productId).
+    private String sendNewBookPush(Firestore db, String productId, Map<String, Object> bookData) {
+        try {
+            String title = bookData.get("title") != null ? String.valueOf(bookData.get("title")) : "A new book";
+
+            // Turn the categoryId (cat_...) into the category NAME for the message text
+            String category = "BookLoop";
+            Object categoryId = bookData.get("categoryId");
+            if (categoryId != null && !String.valueOf(categoryId).isEmpty()) {
+                try {
+                    QuerySnapshot cats = db.collection("categories")
+                            .whereEqualTo("categoryId", String.valueOf(categoryId))
+                            .limit(1)
+                            .get().get();
+                    if (!cats.isEmpty() && cats.getDocuments().get(0).getString("name") != null) {
+                        category = cats.getDocuments().get(0).getString("name");
+                    }
+                } catch (Exception ignored) {
+                    // keep the default category text
+                }
+            }
+
+            Message message = Message.builder()
+                    .setTopic("new_books")
+                    .putData("type", "new_book")
+                    .putData("productId", productId)
+                    .putData("title", title)
+                    .putData("category", category)
+                    .setAndroidConfig(AndroidConfig.builder()
+                            .setPriority(AndroidConfig.Priority.HIGH)
+                            .build())
+                    .build();
+
+            String messageId = FirebaseMessaging.getInstance().send(message);
+            System.out.println("PUSH new book \"" + title + "\" sent to topic new_books, messageId=" + messageId);
+            return "sent";
+
+        } catch (Exception e) {
+            System.err.println("PUSH (new book) failed: " + e.getMessage());
+            return "failed (" + e.getMessage() + ")";
+        }
+    }
 
     @OPTIONS public Response options() { return Response.ok().build(); }
     @OPTIONS @Path("/{id}") public Response optionsId() { return Response.ok().build(); }
